@@ -1,0 +1,26 @@
+
+- name: Update hostname
+  become: true
+  when: new_hostname is defined
+  ansible.builtin.hostname:
+    name: "{{ new_hostname }}"
+
+- name: Update cache (after 3600 seconds)
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Update all packages to their latest version
+  become: true
+  ansible.builtin.apt:
+    name: "*"
+    state: latest
+
+- name: Install python
+  become: true
+  ansible.builtin.apt:
+    pkg:
+      - python3
+      - python-is-python3
+      - python3-pip
+    state: latest

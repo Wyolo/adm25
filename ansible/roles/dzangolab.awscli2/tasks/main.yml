@@ -1,0 +1,20 @@
+- include: debug.yml
+  when: debug | default(false)
+  tags: debug
+
+- include: validate.yml
+  tags: validation
+  no_log: true
+
+- include: install.yml
+  become: true
+  tags: installation
+  no_log: true
+
+- include: configure.yml
+  tags: configuration
+  no_log: true
+
+- include: remove.yml
+  tags: remove
+  no_log: true

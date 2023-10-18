@@ -1,0 +1,51 @@
+
+# Trainers
+
+The list of trainers:
+
+User,Password,Access key ID,Secret access key
+%{ for name, data in trainers ~}
+${name},${data.password},${data.access},${data.secret}
+%{ endfor ~}
+
+A trainer has administrator permissions in the cloud.
+
+The setup and configuration process is described in `ADM-025_Module_0_PreRequirements.pptx` file of training materials.
+
+# Students
+
+The list of students:
+
+User,Password,Access key ID,Secret access key
+%{ for name, data in students ~}
+${name},${data.password},${data.access},${data.secret}
+%{ endfor ~}
+
+A student has limited permissions in the cloud.
+
+The setup and configuration process is described in `ADM-025_Module_0_PreRequirements.pdf` file of training materials.
+
+%{ if instance.present ~}
+# Workstation
+
+Some students can't do exercise on a local computer (hardware doesn't meet minimum requirements, there are restrictions to install software, etc.). For them, there is a special workstation to work from.
+
+IP address: ${instance.ip}
+
+The main SSH key of `${instance.main_user}` user is in file `keys/${instance.main_key}`.
+
+Each user (either trainer or student) has their ssh key `keys/username`. A user can connect to any workstation. Example of connection command:
+
+```console
+$ ssh -i username username@${instance.ip}
+```
+
+A trainer has sudo permission.
+A student has no sudo permission.
+
+The following tools are installed:
+- aws (v2)
+- terraform (latest)
+
+Users have configured to use `aws`.
+%{ endif ~}

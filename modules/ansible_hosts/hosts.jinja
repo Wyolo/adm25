@@ -1,0 +1,10 @@
+%{ if group_name != "" ~}
+[${group_name}]
+%{ endif ~}
+%{ for name, data in computers ~}
+%{ if data.prefix != "" ~}${data.prefix}_%{ endif ~}${name} ansible_host=${data.ip} ansible_user=${data.ssh_user} ansible_ssh_private_key_file=${data.file} new_hostname=${data.hostname} %{ if data.prefix != "" ~}prefix=${data.prefix}%{ endif }
+%{ endfor ~}
+
+[all:vars]
+ansible_ssh_extra_args='-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
+ansible_python_interpreter=/usr/bin/python3

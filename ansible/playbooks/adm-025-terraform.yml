@@ -1,0 +1,31 @@
+---
+- name: Install Software for ADM-021 Kubernetes
+  hosts: all
+  become: yes
+  gather_facts: true
+  tasks:
+
+    - name: Make default settings
+      include_role:
+        name: training_common
+
+    - name: Create users
+      include_role:
+        name: training_users
+      vars:
+        trainers_sudo: true
+        students_sudo: false
+
+    # TODO: move out to separate role?
+    - name: Check if variables are defined
+      assert:
+        that:
+          - "awscli_users is defined"
+
+    - name: Install awscli v2 and set user credentials
+      include_role:
+        name: dzangolab.awscli2
+
+    - name: Install terraform
+      include_role:
+        name: andrewrothstein.terraform

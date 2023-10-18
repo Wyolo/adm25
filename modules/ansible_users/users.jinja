@@ -1,0 +1,6 @@
+---
+${var_name}:
+%{ for name, data in users ~}
+  - login: ${name}
+    password: "{{ '${data.password}' | password_hash('sha512') }}"
+%{ endfor ~}

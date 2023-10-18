@@ -1,0 +1,10 @@
+# ansible-galaxy install -r requirements.yml
+roles:
+  - include: roles/setup_docker/meta/requirements.yml
+  - include: roles/jenkins_agent/meta/requirements.yml
+  - name: andrewrothstein.kubectl
+  - name: andrewrothstein.terraform
+  - name: dzangolab.awscli2
+  - name: sdarwin.vnc
+
+collections:

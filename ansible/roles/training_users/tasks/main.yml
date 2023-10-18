@@ -1,0 +1,91 @@
+---
+  - name: Check if variables are defined
+    assert:
+      that:
+        - "students is defined"
+        - "trainers is defined"
+
+  - name: Merge trainers and students into single list
+    set_fact:
+      users: "{{ trainers + students }}"
+
+  - name: Add group for users
+    ansible.builtin.group:
+      name: users
+
+  - name: Add group per user
+    loop: "{{ users }}"
+    ansible.builtin.group:
+      name: "{{ item.login }}"
+
+  - name: Add users
+    loop: "{{ users }}"
+    ansible.builtin.user:
+      name: "{{ item.login }}"
+      password: "{{ item.password }}"
+      password_expire_max: 10
+      group: "{{ item.login }}"
+      groups:
+        - users
+      append: yes
+      shell: /bin/bash
+
+  - name: Add trainers to group sudo
+    loop: "{{ trainers }}"
+    when: "trainers_sudo"
+    ansible.builtin.user:
+      name: '{{ item.login }}'
+      groups: sudo
+      append: yes
+
+  - name: Add students to group sudo
+    loop: "{{ students }}"
+    when: "students_sudo"
+    ansible.builtin.user:
+      name: '{{ item.login }}'
+      groups: sudo
+      append: yes
+
+  - name: Create the .ssh directory
+    loop: "{{ users }}"
+    when: "users is defined and users"
+    ansible.builtin.file:
+      path: "/home/{{ item.login }}/.ssh"
+      state: directory
+      owner: "{{ item.login }}"
+      group: "{{ item.login }}"
+      mode: '0700'
+
+  - name: Upload private keys for users
+    loop: "{{ users }}"
+    when: "users is defined and users"
+    ansible.builtin.copy:
+      src: "../keys/{{ prefix }}/{{ item.login }}"
+      dest: "/home/{{ item.login }}/.ssh/id_rsa"
+      owner: "{{ item.login }}"
+      group: "{{ item.login }}"
+      mode: '0600'
+
+  - name: Upload public keys for users
+    loop: "{{ users }}"
+    when: "users is defined and users"
+    ansible.builtin.copy:
+      src: "../keys/{{ prefix }}/{{ item.login }}.pub"
+      dest: "/home/{{ item.login }}/.ssh/id_rsa.pub"
+      owner: "{{ item.login }}"
+      group: "{{ item.login }}"
+      mode: '0644'
+
+  - name: Add ssh client's authorized_key to ssh server
+    loop: "{{ users }}"
+    when: "users is defined and users"
+    ansible.posix.authorized_key:
+      user: "{{ item.login }}"
+      key: "{{ lookup('file', '../keys/{{ prefix }}/{{ item.login }}.pub') }}"
+
+  - name: Change permissions of authorized_key
+    loop: "{{ users }}"
+    when: "users is defined and users"
+    ansible.builtin.file:
+      path: "/home/{{ item.login }}/.ssh/authorized_keys"
+      mode: '0600'

@@ -1,0 +1,24 @@
+---
+# file: tasks/validate.yml
+#
+# validation tasks.
+#
+
+- name: Check distribution
+  fail:
+    msg="Only Ubuntu and Debian are supported"
+  when: ansible_distribution != 'Ubuntu' and ansible_distribution != 'Debian'
+
+- name: Check Ubuntu version
+  fail:
+    msg="Only Ubuntu >= 18.04 is supported"
+  when: ansible_distribution == 'Ubuntu' and ansible_facts['distribution_version'] is version('18.04', '<')
+
+- name: Ensure mandatory variables are set
+  fail:
+    msg="{{ item }} is a mandatory variable"
+  when: item is not defined
+  with_items:
+    - awscli_configuration
+    - awscli_profiles
+    - awscli_users
